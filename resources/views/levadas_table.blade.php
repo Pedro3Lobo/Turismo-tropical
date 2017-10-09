@@ -20,7 +20,6 @@
                   <th>Descrição</th>
                   <th>Duração</th>
                   <th>Dificuldade</th>
-                  <th>Preço</th>
                   <th>Opções</th>
                 </tr>
               </thead>
@@ -30,21 +29,26 @@
                    <tr>
                       <td>{{ $levadas->id}}</td>
                       <td>{{ $levadas->name}}</td>
-                      <td>{{ $levadas->descricao}}</td>
+                      <td><?php echo substr( $levadas->descricao,0,50); ?>...</td>
                       <td>{{ $levadas->duracao}}</td>
                       <td>{{ $levadas->dificuldade}}</td>
-                      <td>{{ $levadas->preco}}&euro;</td>
                       <td>
-                      <a href='#' type='button'class='btn btn-info btn-xs' onclick="type_docs_ver(this)" id="{{ $levadas->id}}" data-toggle="modal" data-target="#ModalVer"><span><i class='fa fa-eye' aria-hidden='true'></i></span></a>
-                      <a href='#' type='button'class='btn btn-warning btn-xs'onclick="edit_type_docs(this)" name="{{$levadas->id}}" ><span><i class='fa fa-pencil' aria-hidden='true'></i></span></a>
-                      <a href="#" type='button'class='btn btn-danger btn-xs' onclick="type_docs_apagar(this)" name="{{ $levadas->id}}"><span><i class='fa fa-trash' aria-hidden='true'></i></span></a></td>
+                      <a href='#' type='button'class='btn btn-info btn-xs' onclick="levadas_ver(this)" id="{{ $levadas->id}}" data-toggle="modal" data-target="#ModalVer"><span><i class='fa fa-eye' aria-hidden='true'></i></span></a>
+                      <a href='#' type='button'class='btn btn-warning btn-xs'onclick="edit_levadas(this)" name="{{$levadas->id}}" ><span><i class='fa fa-pencil' aria-hidden='true'></i></span></a>
+                      <a href="#" type='button'class='btn btn-danger btn-xs' onclick="levadas_apagar(this)" name="{{ $levadas->id}}"><span><i class='fa fa-trash' aria-hidden='true'></i></span></a></td>
                    </tr>
-                   <input  id="type_docs{{ $levadas->id}}" value="{{ $levadas->id}}"  style="display: none">
-                   <input  id="name{{ $levadas->id}}" value="{{ $levadas->name}}"  style="display: none">
-                   <input  id="descricao{{ $levadas->id}}" value="{{ $levadas->descricao}}"  style="display: none">
-                   <input  id="duracao{{ $levadas->id}}" value="{{ $levadas->duracao}}"  style="display: none">
-                   <input  id="dificuldade{{ $levadas->id}}" value="{{ $levadas->dificuldade}}"  style="display: none">
-                   <input  id="preco{{ $levadas->id}}" value="{{ $levadas->preco}}"  style="display: none">
+                   <input  id="type_docs{{ $levadas->id}}" value="{{$levadas->id}}"  style="display: none">
+                   <input  id="name{{ $levadas->id}}" value="{{$levadas->name}}"  style="display: none">
+                   <input  id="descricao{{ $levadas->id}}" value="{{$levadas->descricao}}"  style="display: none">
+                   <input  id="duracao{{ $levadas->id}}" value="{{$levadas->duracao}}"  style="display: none">
+                   <input  id="dificuldade{{ $levadas->id}}" value="{{$levadas->dificuldade}}"  style="display: none">
+                   @foreach($foto as $fotos)
+                      @if( $fotos->id_levada == $levadas->id)
+                        <input  id="foto{{ $levadas->id}}" value="{{$fotos->name}}"  style="display: none">
+                      @endif
+                    @endforeach
+                   
+                   <input  id="type_docs{{ $levadas->id}}" value="{{$levadas->id}}"  style="display: none">
                  @endforeach
                </form>
                </tbody>
@@ -64,7 +68,32 @@
   </div><!-- /.box -->
 </div>
 
-
+<div class="modal fade" id="Apagar_modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <form action="{{route('levada_del')}}" method="POST">
+        <div class="modal-header">
+           <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Apagar Levada</h4>
+        </div>
+        <div class="modal-body">
+          <h4>Tem a certesa que quer apagar este Levada???</h4>
+          <ul>
+            <li>
+              Todos os documentos que fazem parte deste Levadas irão ser apagado.
+            </li>
+          </ul>
+          <input  id="apagar_levada" name="id"  style="display: none">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+          <input type="hidden" name="_token"  value="{{ csrf_token() }}" >
+          <button type="submit" class="btn btn-danger"><i class="fa fa-trash" aria-hidden="true"></i> Apagar</button>
+        </div>
+    </form>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
 <!-- Modal Para Inserir-->
 <div class="modal fade" id="myModal" role="dialog">
   <div class="modal-dialog">
@@ -74,12 +103,12 @@
         <button type="button" class="close" data-dismiss="modal">&times;</button>
         <h4 class="modal-title"><i class='fa fa-arrow-circle-o-right'></i><b> Inserir Levada</b></h4>
       </div>
-      <form class="form-group" id="type_form_inser" action="#" method="post">
+      <form class="form-group" id="levadas_inser" action="{{route('levada_inser')}}" enctype="multipart/form-data" method="post">
         <div class="modal-body">
             <div class="form-group">
               <div class='form-group has-feedback'>
                 <label>Nome da Levada: </label><br>
-                <input type='text' class='form-control'  required='required' name='nome_inser' id='nome_inser' placeholder='Nome da Levada: 'required='required'>
+                <input type='text' class='form-control'  required='required' name='name' id='name' placeholder='Nome da Levada: ' >
                 
               </div>
             </div>
@@ -105,16 +134,15 @@
             </div>
             <div class="form-group">
               <div class='form-group has-feedback'>
-                <label>Preço da Levada: </label><br>
-                <input type="number" class='form-control'  required='required' name='preco_inser' id='preco_inser' placeholder='Preço da Levada' required='required'>
-                
-              </div>
+                <label>Escolha a imagem para fazer Upload:</label>
+                <input type="file" name="file" required='required'  id="file">
+             </div>
             </div>
         </div>
         <div class="modal-footer">
           <input type="hidden" name="id" id="_user" value="" >
           <input type="hidden" name="_token"  value="{{ csrf_token() }}" >
-          <a type="button"class="btn btn-primary" id="btn_type_inser" onclick="type_inser_submit(this)" ><i class="fa fa-check" aria-hidden="true"></i> Confirmar</a>
+          <a type="button" class="btn btn-primary" id="btn_type_inser" onclick="levadas_inser_submit(this)" ><i class="fa fa-check" aria-hidden="true"></i> Confirmar</a>
           <button type="button" class="btn btn-warning" data-dismiss="modal" ><i class="fa fa-times" aria-hidden="true"></i> Fechar</button>
         </div>
       </form>
@@ -128,24 +156,50 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">Editar Tipo Documento</h4>
+        <h4 class="modal-title"><i class='fa fa-arrow-circle-o-right'></i><b>Editar Levadas</b></h4>
       </div>
-      <form class="form-group" id="type_form_edi" action="#" method="post">
-      <div class="modal-body">
+      <form class="form-group" id="levadas_edi" action="{{route('levada_edi')}}" method="post">
         <div class="modal-body">
             <div class="form-group">
               <div class='form-group has-feedback'>
-                <label>Nome do Tipo de Doc: </label><br>
-                <input type='text' class='form-control'  required='required' name='type_doc_edit' id='type_doc_edit'placeholder='Nome do Departamento: 'required='required'>
-                
+                <label>Nome da Levada: </label><br>
+                <input type='text' class='form-control'  required='required' name='name_edi' id='name_edi' placeholder='Nome da Levada: ' >
               </div>
             </div>
+            <div class="form-group">
+              <div class='form-group has-feedback'>
+                <label>Descrição da Levada: </label><br>
+                 <textarea class="form-control" required='required' name='descricao_edi' id='descricao_edi' rows="5" id="comment"  placeholder="Descrição da Levada..."></textarea>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class='form-group has-feedback'>
+                <label>Duração da Levada: </label><br>
+                <input type='time' class='form-control'  required='required' name='duracao_edi' id='duracao_edi' placeholder='Duração da Levada:' required='required'>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class='form-group has-feedback'>
+                <label>Dificuldade da Levada: </label><br>
+                <input  type="radio" name="dificuldade_edi" id="dificuldade_f" value="Facil" checked> Facil
+                <input  type="radio" name="dificuldade_edi" id="dificuldade_m" value="Médio"> Médio
+                <input  type="radio" name="dificuldade_edi" id="dificuldade_d" value="Difícil">Difícil
+              </div>
+            </div>
+            <div class="form-group">
+              <div class='form-group has-feedback'>
+                <label>Escolha a imagem para fazer Upload:</label>
+                <input type="file" name="file_e"   id="file">
+             </div>
+            </div>
+            
+            
         </div>
         <div class="modal-footer">
-          <input type="text" id="id_type_doc" name="id_type_doc" style="display: none" >
+          <input type="text" id="id_levadas" name="id_l" style="display: none" >
           <input type="text" name="_token"  value="{{ csrf_token() }}" style="display: none" >
-          <button type="button" class="btn btn-warning" data-dismiss="modal">Fechar</button>
-          <button type="submit" id="btn_type_edit" data-dismiss="modal" class="btn btn-primary">Guardar Mudanças</button>
+          <button type="submit" id="btn_type_edit"  class="btn btn-primary"><i class="fa fa-check" aria-hidden="true"></i> Guardar Mudanças</button>
+          <button type="button" class="btn btn-warning" data-dismiss="modal"><i class="fa fa-times" aria-hidden="true"></i> Fechar</button>
         </div>
       </form>
       </div><!-- /.modal-content -->
@@ -158,52 +212,47 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">Ver Tipo de Doc</h4>
+        <h4 class="modal-title"><i class='fa fa-arrow-circle-o-right'></i><b> Ver Levada</b></h4>
       </div>
-      <div class="modal-body">
         <div class="modal-body">
+            <div class="modal-body">
             <div class="form-group">
               <div class='form-group has-feedback'>
-                <label>Nome do Tipo de Doc: </label><br>
-                <input type='text' class='form-control'  required='required' id='type_doc' placeholder='Tipo Doc: 'required='required' disabled>
-                
+                <label>Nome da Levada: </label><br>
+                <input type='text' class='form-control' id='name_ver' placeholder='Nome da Levada:' disabled>
               </div>
             </div>
-      </div>
+            <div class="form-group">
+              <div class='form-group has-feedback'>
+                <label>Descrição da Levada: </label><br>
+                 <textarea class="form-control"  id='descricao_ver' rows="5"   placeholder="Descrição da Levada..." disabled></textarea>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class='form-group has-feedback'>
+                <label>Duração da Levada: </label><br>
+                <input type='time' class='form-control'    id='duracao_ver' placeholder='Duração da Levada:' disabled>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class='form-group has-feedback'>
+                <label>Dificuldade da Levada: </label><br>
+                <input  type="radio" id="dificuldade_ver_f" value="Facil" disabled> Facil
+                <input  type="radio" id="dificuldade_ver_m" value="Médio" disabled> Médio
+                <input  type="radio" id="dificuldade_ver_d" value="Difícil" disabled>Difícil
+              </div>
+            </div>
+        </div>
+      
       <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+          <button type="button" class="btn btn-warning" data-dismiss="modal"><i class="fa fa-times" aria-hidden="true"></i> Fechar</button>
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
-</div>
-</div>
 
-<div class="modal fade" id="Apagar_modal" tabindex="-1" role="dialog">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <form action="#" method="POST">
-        <div class="modal-header">
-           <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">Apagar Tipo de Doc</h4>
-        </div>
-        <div class="modal-body">
-          <h4>Tem a certesa que quer apagar este Tipo Doc???</h4>
-          <ul>
-            <li>
-              Todos os documentos que fazem parte deste Tipo Doc irão ser apagado.
-            </li>
-          </ul>
-          <input  id="apagar_type_doc" name="apagar_type_doc"  style="display: none">
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
-          <input type="hidden" name="_token"  value="{{ csrf_token() }}" >
-          <button type="submit" class="btn btn-danger"><i class="fa fa-trash" aria-hidden="true"></i> Apagar</button>
-        </div>
-    </form>
-    </div><!-- /.modal-content -->
-  </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
+
+
+
 <script  type="text/javascript">
   var token = '{{Session::token()}}';
   var id;
@@ -212,39 +261,79 @@
   var duracao;
   var dificuldade;
   var preco;
+  var foto;
 
- function type_docs_ver(elem) {
-        event.preventDefault();
-        tipo =document.getElementById('type_docs'+elem.id).value
-        document.getElementById('type_doc').value=tipo;
-  }
-  function type_docs_apagar(vari) {
+ function levadas_ver(elem) {
+        id=elem.name;
+        console.log("ola"+id)
+        name =document.getElementById('name'+elem.id).value;
+        descricao=document.getElementById('descricao'+elem.id).value;
+        duracao =document.getElementById('duracao'+elem.id).value;
+        dificuldade=document.getElementById('dificuldade'+elem.id).value;
+        var foto=document.getElementById('foto'+elem.id).value;
+        console.log('foto:'+foto);
+         //document.getElementById('type_doc_edit').value=name;
+         document.getElementById('name_ver').value= name;
+         document.getElementById('descricao_ver').value= descricao;
+         document.getElementById('duracao_ver').value= duracao;
+         if(dificuldade=="Facil"){
+            document.getElementById('dificuldade_ver_f').checked = true;
+         }else if(dificuldade="Médio"){
+            document.getElementById('dificuldade_ver_m').checked = true;
+         }else if(dificuldade="Difícil"){
+            document.getElementById('dificuldade_ver_d').checked = true;
+         }
+         
+          
+        }
+  function levadas_apagar(vari) {
        event.preventDefault();
        $("#Apagar_modal").modal();
-       document.getElementById('apagar_type_doc').value=vari.name;
+       document.getElementById('apagar_levada').value=vari.name;
   }
 
 
-  function edit_type_docs(elem) {
+  function edit_levadas(elem) {
          event.preventDefault();
          $("#ModalEdit").modal();
-         name =document.getElementById('type_docs'+elem.name).value
-         document.getElementById('type_doc_edit').value=name;
-         document.getElementById('id_type_doc').value=elem.name;
+         id=""+elem.name;
+        console.log("ola"+id)
+         name =document.getElementById('name'+elem.name).value;
+         descricao=document.getElementById('descricao'+elem.name).value;
+         duracao =document.getElementById('duracao'+elem.name).value;
+         dificuldade=document.getElementById('dificuldade'+elem.name).value;
+        
+         
+         //document.getElementById('type_doc_edit').value=name;
+         document.getElementById('id_levadas').value=id;
+         document.getElementById('name_edi').value= name;
+         document.getElementById('descricao_edi').value= descricao;
+         document.getElementById('duracao_edi').value= duracao;
+         if(dificuldade=="Facil"){
+            document.getElementById('dificuldade_f').checked = true;
+         }else if(dificuldade="Médio"){
+            document.getElementById('dificuldade_m').checked = true;
+         }else if(dificuldade="Difícil"){
+            document.getElementById('dificuldade_d').checked = true;
+         }
+        
+        
+        document.getElementById('id_levadas').value=elem.name;
+
    }
 
-    function type_inser_submit(elem) {
-      name=document.getElementById('nome_inser').value;
+    function levadas_inser_submit(elem) {
+      name=document.getElementById('name').value;
       descricao=document.getElementById('descricao_inser').value;
-      preco=document.getElementById('preco_inser').value;
+      //preco=document.getElementById('preco_inser').value;
       //console.log("Pedro"+name);
       name=name.replace(/\s/g,'');
       descricao=descricao.replace(/\s/g,'');
-      preco=preco.replace(/\s/g,'');
+      
       if(name==""){
        // console.log("Falhou");
       }else{
-        document.getElementById("type_form_inser").submit();
+        document.getElementById("levadas_inser").submit();
         //console.log("Flag1");
         document.getElementById("btn_type_inser").style.display = 'none';
       }

@@ -16,10 +16,9 @@ class CreateLevadasTable extends Migration
         Schema::create('levadas', function (Blueprint $table) {
             $table->increments('id');
 			$table->string('name');
-			$table->string('descricao');
+			$table->longText('descricao');
 			$table->string('duracao');
 			$table->string('dificuldade');
-			$table->integer('preco');
             $table->timestamps();
         });
     }

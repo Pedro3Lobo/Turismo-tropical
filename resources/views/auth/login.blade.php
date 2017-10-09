@@ -57,6 +57,7 @@
                                 <a class="btn btn-link" href="{{ route('password.request') }}">
                                     Forgot Your Password?
                                 </a>
+                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
                             </div>
                         </div>
                     </form>

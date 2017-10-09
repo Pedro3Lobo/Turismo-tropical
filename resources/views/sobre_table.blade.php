@@ -1,4 +1,4 @@
-@extends('layouts.app_admin')
+@extends('layouts.app')
 @section('content')
 @include('includes.message-block')
 <div class="row">
@@ -7,40 +7,52 @@
   <div class="col-md-8">
     <div class="panel panel-default">
       <div class="panel-heading">
-        <h4 class='box-title'><i class='fa fa-book'></i><b> Lista de Tipos Doc.</b></h4>
+        <h4 class='box-title'></i><b>Informações da Empresa</b></h4>
       </div>
       <div class="panel-body">
         <div class='row-fluid'>
           <div id="postBody"></div>
+
               <table id="example" class=' table-bordered table-striped' class="display" cellspacing="0" width="100%">
                 <thead>
                 <tr>
-                  <th>ID Tipo do Doc</th>
-                  <th>Tipo de Doc</th>
+                  <th>ID Info</th>
+                  <th>Nome</th>
+                  <th>Email</th>
+                  <th>Descrição</th>
+                  <th>Tel</th>
+                  <th>Localização</th>
                   <th>Opções</th>
                 </tr>
               </thead>
               <tbody>
                 <form>
-                  @foreach($type_doc as $type_docs)
+                  @foreach($sobre as $sobres)
                    <tr>
-                      <td>{{ $type_docs->id}}</td>
-                      <td>{{ $type_docs->type}}</td>
+                      <td>{{ $sobres->id}}</td>
+                      <td>{{ $sobres->name}}</td>
+                      <td>{{ $sobres->email}}</td>
+                      <td><?php echo substr( $sobres->descricao,0,50); ?></td>
+                      <td>{{ $sobres->tel}} </td>
+                      <td>{{ $sobres->sitio}}</td>
                       <td>
-                      <a href='#' type='button'class='btn btn-info btn-xs' onclick="type_docs_ver(this)" id="{{ $type_docs->id}}" data-toggle="modal" data-target="#ModalVer"><span><i class='fa fa-eye' aria-hidden='true'></i></span></a>
-                      <a href='#' type='button'class='btn btn-warning btn-xs'onclick="edit_type_docs(this)" name="{{$type_docs->id}}" ><span><i class='fa fa-pencil' aria-hidden='true'></i></span></a>
-                      <a href="#" type='button'class='btn btn-danger btn-xs' onclick="type_docs_apagar(this)" name="{{ $type_docs->id}}"><span><i class='fa fa-trash' aria-hidden='true'></i></span></a></td>
+                         <!-- /.btn ver -->
+                        <a href='#' type='button' class='btn btn-info btn-xs' onclick="info_ver(this)" id="{{ $sobres->id}}" data-toggle="modal" data-target="#ModalVer"><span><i class='fa fa-eye' aria-hidden='true'></i></span></a>
+                        <!-- /.btn ver -->
+                        <!-- /.btn editar -->
+                        <a href='#' type='button' class='btn btn-warning btn-xs'onclick="edit_info(this)" id="{{ $sobres->id}}" ><span><i class='fa fa-pencil' aria-hidden='true'></i></span></a>
+                        <!-- /.btn editar -->
+                      </td>
                    </tr>
-                   <input  id="type_docs{{ $type_docs->id}}" value="{{ $type_docs->type}}"  style="display: none">
+                   <input  id="name{{ $sobres->id }}" value="{{ $sobres->name }}"  style="display: none">
+                   <input  id="email{{ $sobres->id }}" value="{{ $sobres->email }}"  style="display: none">
+                   <input  id="descricao{{ $sobres->id }}" value="{{ $sobres->descricao }}"  style="display: none">
+                   <input  id="tel{{ $sobres->id }}" value="{{ $sobres->tel }}"  style="display: none">
+                   <input  id="sitio{{ $sobres->id }}" value="{{ $sobres->sitio }}"  style="display: none">
                  @endforeach
                </form>
                </tbody>
             </table>
-          </div>
-          <div class=''>
-            <a href='#' data-toggle="modal" data-target="#myModal"  class='btn btn-success date_doc'>
-              <i class='fa fa-plus'></i> Novo Tipo de Doc
-            </a>
           </div>
         </div
           <!-- /.box-body -->
@@ -50,156 +62,150 @@
   <div class="col-md-2">
   </div><!-- /.box -->
 </div>
-
-
-<!-- Modal Para Inserir-->
-<div class="modal fade" id="myModal" role="dialog">
-  <div class="modal-dialog">
-    <!-- Modal content-->
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title"><i class='fa fa-arrow-circle-o-right'></i><b> Inserir Tipo de Doc</b></h4>
-      </div>
-      <form class="form-group" id="type_form_inser" action="{{route('admin.type_doc.insert')}}" method="post">
-        <div class="modal-body">
-            <div class="form-group">
-              <div class='form-group has-feedback'>
-                <label>Nome do Tipo de Doc: </label><br>
-                <input type='text' class='form-control'  required='required' name='type_doc_inser' id='type_doc_inser' placeholder='Nome do Tipo de Doc: 'required='required'>
-                <span class='glyphicon glyphicon-comment form-control-feedback' ></span>
-              </div>
-            </div>
-        <div class="modal-footer">
-          <input type="hidden" name="id" id="_user" value="" >
-          <input type="hidden" name="_token"  value="{{ csrf_token() }}" >
-          <a type="button"class="btn btn-primary" id="btn_type_inser" onclick="type_inser_submit(this)" ><i class="fa fa-check" aria-hidden="true"></i> Confirmar</a>
-          <button type="button" class="btn btn-warning" data-dismiss="modal" ><i class="fa fa-times" aria-hidden="true"></i> Fechar</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-</div>
 <!-- Modal Para Editar-->
 <div class="modal fade" tabindex="-1" id="ModalEdit" role="dialog">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">Editar Tipo Documento</h4>
+        <h4 class="modal-title"><i class='fa fa-arrow-circle-o-right'></i><b>Editar Info</b></h4>
       </div>
-      <form class="form-group" id="type_form_edi" action="{{route('admin.type_doc.edit')}}" method="post">
-      <div class="modal-body">
+      <form class="form-group"  action="{{route('info')}}" method="post" novalidate>
         <div class="modal-body">
             <div class="form-group">
               <div class='form-group has-feedback'>
-                <label>Nome do Tipo de Doc: </label><br>
-                <input type='text' class='form-control'  required='required' name='type_doc_edit' id='type_doc_edit'placeholder='Nome do Departamento: 'required='required'>
-                <span class='glyphicon glyphicon-comment form-control-feedback' ></span>
+                <label>Nome da Info: </label><br>
+                <input type='text' class='form-control'  required='required' name='name' id='name'  placeholder='Nome da Empresa: ' >
+                </div>
+            </div>
+            <div class="form-group">
+              <div class='form-group has-feedback'>
+                <label>Email da Empresa: </label><br>
+                <input type='email' class='form-control'  required='required' name='email' id='email'  placeholder='Email da Empresa: ' >
+                </div>
+            </div>
+            <div class="form-group">
+              <div class='form-group has-feedback'>
+                <label>Descrição da Empresa: </label><br>
+                 <textarea class="form-control" required='required' name='descricao'  rows="5" id="descricao"  placeholder="Descrição da Levada..."></textarea>
+              </div>
+            </div>
+           
+             <div class="form-group">
+              <div class='form-group has-feedback'>
+                <label>Localização da Empresa: </label><br>
+                <input  type="text" min="1" step="any"  class='form-control'  required='required' name='localizacao' id='localizacao' placeholder='Localizacao: ' >
+              </div>
+            </div>
+             <div class="form-group">
+              <div class='form-group has-feedback'>
+                <label>Telefone da Empresa: </label><br>
+                <input  type="number"   class='form-control'  required='required' name='tel' id='tel' placeholder='Telefone: ' >
               </div>
             </div>
         </div>
         <div class="modal-footer">
-          <input type="text" id="id_type_doc" name="id_type_doc" style="display: none" >
+          <input type="text" id="id" name="id" style="display: none" >
           <input type="text" name="_token"  value="{{ csrf_token() }}" style="display: none" >
-          <button type="button" class="btn btn-warning" data-dismiss="modal">Fechar</button>
-          <button type="submit" id="btn_type_edit" data-dismiss="modal" class="btn btn-primary">Guardar Mudanças</button>
+          <button type="submit" id="btn_type_edit"  class="btn btn-primary"><i class="fa fa-check" aria-hidden="true"></i> Guardar Mudanças</button>
+          <button type="button" class="btn btn-warning" data-dismiss="modal"><i class="fa fa-times" aria-hidden="true"></i> Fechar</button>
         </div>
       </form>
       </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
   </div>
-</div>
 
-<div class="modal fade" tabindex="-1" id="ModalVer" role="dialog">
+  <div class="modal fade" tabindex="-1" id="ModalVer" role="dialog">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">Ver Tipo de Doc</h4>
+        <h4 class="modal-title"><i class='fa fa-arrow-circle-o-right'></i><b> Ver Info</b></h4>
       </div>
-      <div class="modal-body">
+
         <div class="modal-body">
             <div class="form-group">
               <div class='form-group has-feedback'>
-                <label>Nome do Tipo de Doc: </label><br>
-                <input type='text' class='form-control'  required='required' id='type_doc' placeholder='Tipo Doc: 'required='required' disabled>
-                <span class='glyphicon glyphicon-comment form-control-feedback' ></span>
+                <label>Nome da Info: </label><br>
+                <input type='text' class='form-control'    id='name_ver'  placeholder='Nome da Empresa: ' disabled>
+                </div>
+            </div>
+            <div class="form-group">
+              <div class='form-group has-feedback'>
+                <label>Email da Empresa: </label><br>
+                <input type='email' class='form-control'  id='email_ver'  placeholder='Email da Empresa: ' disabled>
+                </div>
+            </div>
+            <div class="form-group">
+              <div class='form-group has-feedback'>
+                <label>Descrição da Empresa: </label><br>
+                 <textarea class="form-control"  rows="5" id="descricao_ver"  placeholder="Descrição da Levada..." disabled></textarea>
               </div>
             </div>
-      </div>
+           
+             <div class="form-group">
+              <div class='form-group has-feedback'>
+                <label>Localização da Empresa: </label><br>
+                <input  type="text" min="1" step="any"  class='form-control'  id='localizacao_ver' placeholder='Localizacao: '  disabled>
+              </div>
+            </div>
+             <div class="form-group">
+              <div class='form-group has-feedback'>
+                <label>Telefone da Empresa: </label><br>
+                <input  type="number"   class='form-control'   id='tel_ver' placeholder='Telefone: ' disabled>
+              </div>
+            </div>
+            </div>
       <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+          <button type="button" class="btn btn-warning" data-dismiss="modal"><i class="fa fa-times" aria-hidden="true"></i> Fechar</button>
       </div>
     </div><!-- /.modal-content -->
-  </div><!-- /.modal-dialog -->
-</div>
-</div>
+  </div>
 
-<div class="modal fade" id="Apagar_modal" tabindex="-1" role="dialog">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <form action="{{route('apagar.type_doc')}}" method="POST">
-        <div class="modal-header">
-           <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">Apagar Tipo de Doc</h4>
-        </div>
-        <div class="modal-body">
-          <h4>Tem a certesa que quer apagar este Tipo Doc???</h4>
-          <ul>
-            <li>
-              Todos os documentos que fazem parte deste Tipo Doc irão ser apagado.
-            </li>
-          </ul>
-          <input  id="apagar_type_doc" name="apagar_type_doc"  style="display: none">
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
-          <input type="hidden" name="_token"  value="{{ csrf_token() }}" >
-          <button type="submit" class="btn btn-danger"><i class="fa fa-trash" aria-hidden="true"></i> Apagar</button>
-        </div>
-    </form>
-    </div><!-- /.modal-content -->
-  </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
 <script  type="text/javascript">
   var token = '{{Session::token()}}';
-  var tipo;
+  var id;
+  var name;
+  var descricao;
+  var email;
+  var tel;
+  var sitio;
 
-
- function type_docs_ver(elem) {
+  function edit_info(elem) {
         event.preventDefault();
-        tipo =document.getElementById('type_docs'+elem.id).value
-        document.getElementById('type_doc').value=tipo;
+        $("#ModalEdit").modal();
+
+        name =document.getElementById('name'+elem.id).value;
+        tel=document.getElementById('tel'+elem.id).value;
+        email =document.getElementById('email'+elem.id).value;
+        descricao=document.getElementById('descricao'+elem.id).value;
+        sitio=document.getElementById('sitio'+elem.id).value;
+        
+        document.getElementById('name').value= name;
+        document.getElementById('tel').value=tel;
+        document.getElementById('email').value=email;  
+        document.getElementById('descricao').value=descricao;
+        document.getElementById('localizacao').value=sitio;
+        document.getElementById('id').value=elem.id;
   }
-  function type_docs_apagar(vari) {
-       event.preventDefault();
-       $("#Apagar_modal").modal();
-       document.getElementById('apagar_type_doc').value=vari.name;
-  }
+  function info_ver(elem) {
+        event.preventDefault();
+        
 
-
-  function edit_type_docs(elem) {
-         event.preventDefault();
-         $("#ModalEdit").modal();
-         name =document.getElementById('type_docs'+elem.name).value
-         document.getElementById('type_doc_edit').value=name;
-         document.getElementById('id_type_doc').value=elem.name;
-   }
-
-    function type_inser_submit(elem) {
-      name=document.getElementById('type_doc_inser').value;
-      console.log("Pedro"+name);
-      name=name.replace(/\s/g,'');
-      if(name==""){
-        console.log("Falhou");
-      }else{
-        document.getElementById("type_form_inser").submit();
-        console.log("Flag1");
-        document.getElementById("btn_type_inser").style.display = 'none';
-      }
-     }
+        name =document.getElementById('name'+elem.id).value;
+        tel=document.getElementById('tel'+elem.id).value;
+        email =document.getElementById('email'+elem.id).value;
+        descricao=document.getElementById('descricao'+elem.id).value;
+        sitio=document.getElementById('sitio'+elem.id).value;
+        
+        document.getElementById('name_ver').value= name;
+        document.getElementById('tel_ver').value=tel;
+        document.getElementById('email_ver').value=email;  
+        document.getElementById('descricao_ver').value=descricao;
+        document.getElementById('localizacao_ver').value=sitio;
+       
+  }             
+     
 
 </script>
 @stop
